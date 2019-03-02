@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta name = "author" content="WangXiaoRan">
+        <meta name = "description" content="homework of Web, to make an e-Book">
+        
+        <title>e-Book</title>
+        <link rel="stylesheet" type="text/css" href="./asset/css/e-Book-style.css" />
+        <link rel="icon" type="image/x-icon" href="./asset/img/icon.jpg" />
+        
+        <script>
+            goToSearch = ()=>{
+                window.location.href = "https://www.qisuu.la/";
+            } 
+        </script>
+    </head>
+    <body>
+        <div>
+            <div class="navigationBar">
+                <ul>
+                    <li id = "logTag"><a href="./component/logIn.htm">登录</a></li>
+                    <li><a href="./component/bookList.htm">图书列表</a></li>
+                </ul>
+            </div>
+
+            <div>
+                <p id ="themeP">E-BOOK</p>
+            </div>
+
+            <div class="searchBook">
+                <input type="text" />
+                <button onclick="goToSearch()">搜索</button>
+            </div>
+
+        </div>
+    </body>
+</html>
