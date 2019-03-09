@@ -1,0 +1,46 @@
+.navigationBar{
+    height: 40px;
+    width: 100%;
+    float: none;
+}
+
+.navigationBar ul li{
+    margin: 10px;
+    float: left;
+    color: #9c9c9e;
+    text-align: center;
+}
+
+.navigationBar ul{
+    background: #9c9c9e;
+    height:40px;
+}
+
+.searchBook{
+    position: relative;
+    height:250px;
+}
+
+.searchBook input{
+    position: absolute;
+    top:0%;
+    left:35%;
+    float: left;
+    height: 30px; 
+    width: 25%;
+    
+}
+
+.searchBook button{
+    position: absolute;
+    top:0%;
+    left: 60%;
+    float: left;
+    height: 36px;
+    width: 5%;
+}
+
+#themeP{
+    font-size: 500%;
+    text-align: center;
+}
