@@ -1,0 +1,27 @@
+.container{
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background-color: rgb(52, 238, 222);
+}
+
+.bookList{
+    list-style: none;
+    text-align: center;
+    
+}
+
+.bookList li{
+    margin: 10px;
+    position: relative;
+    float: left;
+    display: block;
+    padding: 5px;
+    border: 2px solid #000000;
+}
+
+.bookList li a img{
+    position: relative;
+    height: 160px;
+    width: 120px;
+}

@@ -5,42 +5,36 @@
         <meta name = "description" content="homework of Web, to make an e-Book">
         
         <title>E-Book</title>
+        <link rel="stylesheet" href="./asset/css/e-Book.css">
         <link rel="icon" type="image/x-icon" href="./asset/img/icon.jpg" />
-        <style>
-            #logContainer{
-                position: fixed;
-                height: 100%;
-                width: 100%;
-            }
-
-            #progName{
-                font-size: 25px;
-            }
-
-            #slogan{
-                font-size: 20px;
-            }
-
-            
-        </style>
+        
         <script>
-            
+            var goToMainPage =()=>{
+                window.location.href="./component/mainPage.htm"
+            }
+
+            var goToLogUP =()=>{
+                window.location.href="./component/logUp.htm"
+            }
         </script>
     </head>
     <body>
         <div id="logContainer">
-            <p id="progName">E-BOOK</p>
-            <p id="slogan">致力于给您最优质的体验</p>
+            <h1 id="progName">E-BOOK</h1>
+            <h2 id="slogan">致力于给您最优质的体验</h2>
+
             <div id="logInput">
                 <input  type="text" value="用户名："/>
+                <p></p>
                 <input  type="text" value="密码："/>
             </div>
 
             <div id="logButton">
-                <button class="logInButton" onclick="logIn()">
+                <button onclick="goToMainPage()">
                     登录
                 </button>
-                <button class="logInButton" onclick="logIn()">
+                
+                <button onclick="goToLogUP()">
                     注册
                 </button>
             </div>
