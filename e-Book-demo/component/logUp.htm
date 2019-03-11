@@ -6,6 +6,7 @@
         <link rel="stylesheet" type="text/css" href="../asset/css/logUp.css" />        
         <script type="text/javascript">
             function logIn(){
+                alert(document.getElementById("userName").value);
                 window.location.href="../e-Book.htm";
             }
         </script>
@@ -14,7 +15,7 @@
         <div class="logContainer">
             <p>E-BOOK 注册</p>
             <div class="logInput">
-                <input  type="text" value="用户名："/>
+                <input  id = "userName" type="text" value="用户名："/>
                 <input  type="text" value="密码："/>
                 <input  type="text" value="确认密码："/>
                 <input  type="text" value="邮箱："/>
