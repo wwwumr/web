@@ -6,39 +6,18 @@
 }
 
 .logContainer{
+    text-align: center;
     position: relative;
     height: 100%;
-    width: 100%;
+    width: 20%;
+    left: 40%;
     top: 50px;
 }
 
-.logContainer .logInput{
-    position: relative;
-    height: 150px;
-    width: 40%;
-    top: 15%;
-    left: 30%;
+.logContainer *{
+    margin: 2px;
+}
+
+#container{
     text-align: center;
-}
-
-.logContainer .logInput input{
-    position: relative;
-    margin: 2%;
-    height: 25%;
-    width: 60%;
-    
-}
-
-.logButton{
-    position: relative;
-    height: 10%;
-    width: 40%;
-    left: 30%;
-    text-align: center;
-}
-
-.logButton button{
-    position: relative;
-    height: 50%;
-    width: 20%;
 }

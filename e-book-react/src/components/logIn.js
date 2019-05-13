@@ -1,46 +1,95 @@
 import React, { Component } from 'react';
 import 'antd/dist/antd.css';
-import {Layout, Menu, Input,Button } from 'antd';
-import '../asset/css/logIn.css';
-import {Link} from 'react-router-dom';
-  
-const { Header, Content, Footer} = Layout;
+import {
+     Input,  Icon, Button, Layout
+  } from 'antd';
+import '../asset/css/logIn.css'
+import axios from 'axios';
+import { createHashHistory } from 'history';
 
-class LogIn extends Component{
+const history = createHashHistory();
+
+const {  Content, Footer} = Layout;
+
+class LoginForm extends React.Component {
     constructor(props){
       super(props);
       this.state={
-          userName:"user"
+        userName:"user"
       }
     }
+
+    handleClick = () => {
+
+      var getVal = (s)=>{
+        return document.getElementById(s).value;
+      }
+      var password=getVal("password");
+      var repassword = getVal("repassword");
+      var userName = getVal("userName");
+      var email = getVal("email")
+      if(!password || !repassword || !userName || !email){
+        alert("所填值不能为空！");
+      }else if(password !== repassword ){
+        alert("密码不一致");
+      }else if(password.length>20 || userName.length>20 || email.length >30){
+        alert("用户名、密码太长(20字符内,邮箱30字符)");
+      }else{
+        axios.get("http://localhost:8080/user/logIn",{
+          params:{
+            userName: userName
+          }
+        }).then(function(response){
+          if(response.data){
+            alert("用户名已注册");
+          }else{
+            axios.post("http://localhost:8080/user/logIn",{
+              name:userName,
+              password:password,
+              email:email
+            })
+            history.push("/");
+          }
+        })
+      }
+    }
+  
+    render() {
+      return (
+        <div id="input">
+          
+            <Input id="userName" prefix={<Icon type="user" style={{ color: 'rgba(0,0,0,.25)' }} />} placeholder="Username" />
+            
+            <Input id="password" prefix={<Icon type="lock" style={{ color: 'rgba(0,0,0,.25)' }} />} type="password" placeholder="Password" />
+
+            <Input id="repassword" prefix={<Icon type="lock" style={{ color: 'rgba(0,0,0,.25)' }} />} type="password" placeholder="Password" />
+
+            <Input id="email" prefix={<Icon type="mail" style={{ color: 'rgba(0,0,0,.25)' }} />}  placeholder="Email" />
+            
+            <Button onClick={this.handleClick} type="primary" htmlType="button" className="login-form-button">
+              确认
+            </Button>
+        </div>
+      );
+    }
+  }
+  
+
+
+
+class LogIn extends Component{
+
     render(){
         return (
             <Layout>
-            <Header className="header">
-                <div className="logo" />
-                <Menu theme="dark" mode="horizontal"  style={{ lineHeight: '64px' }} >
-                <Menu.Item key="0"><Link to="/">{ this.state.userName }</Link></Menu.Item>
-                <Menu.Item key="1"><Link to="/logIn">用户注册</Link></Menu.Item>
-                <Menu.Item key="2"><Link to="/bookList">图书列表</Link></Menu.Item>
-                <Menu.Item key="3"><Link to="/orders">历史订单</Link></Menu.Item>
-                <Menu.Item key="4"><Link to="/analize">统计信息</Link></Menu.Item>
-                </Menu>
-            </Header>
             <Layout style={{ padding: '0 24px 24px' }}>
                 <Content style={{
                 background: '#fff', padding: 24, margin: 0, minHeight: 450,
                 }}>
-                <div id="input">
-                <Input placeholder="user" addonBefore="用户名"  />
-                <Input placeholder="*******" addonBefore="密码"/>
-                <Input placeholder="*******" addonBefore="重复"/>
-                <div id="button">
-                <Button type="primary">注册</Button>
+                <div>
+                <p id="logIn">注册</p>
                 </div>
-                                
-                </div>
-                
-                
+                <LoginForm />
                 </Content>
             </Layout>
             <Footer style={{ textAlign: 'center' }}>
@@ -50,6 +99,8 @@ class LogIn extends Component{
         );
     }
 }
+
+
 
 export default LogIn;
 

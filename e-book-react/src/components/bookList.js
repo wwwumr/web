@@ -1,48 +1,32 @@
 import React, { Component } from 'react';
 import 'antd/dist/antd.css';
-import {Layout, Menu, Table, Input, Button, Icon } from 'antd';
-import {Link} from 'react-router-dom';
+import {Layout, Table, Input, Button, Icon, Collapse,List, } from 'antd';
 import Highlighter from 'react-highlight-words';  
+import axios from 'axios';
+import {Link} from 'react-router-dom';
+import Navigation from './header';
+import Tagger from './footer';
+import { element } from 'prop-types';
 
-const { Header, Content, Footer} = Layout;
+const {Content} = Layout;
+const Panel = Collapse.Panel;
 
 class BookList extends Component{
     constructor(props){
         super(props);
+        const userName = this.props.match.params.userName;
         this.state={
             searchText: '',
-            userName:"user",    
-            book:[{
-                title: '绝世唐门',
-                author:"唐家三少",
-                image:"/img/jueShiTangMen.jpg",
-                ISBN:"01",
-                remaining:"10"
-              },{
-                title: '全职高手',
-                author:"蝴蝶蓝",
-                image:"/img/quanZhiGaoShou.jpg",
-                ISBN:"02",
-                remaining:"10"
-              },{
-                title: '三寸天堂',
-                author:"耳根",
-                image:"/img/sanCunTianTang.jpg",
-                ISBN:"03",
-                remaining:"10"
-              },{
-                title: '镇魂',
-                author:"priest",
-                image:"/img/zhenHun.jpg",
-                ISBN:"04",
-                remaining:"10"
-              }
-            ],
-            tag:[{
+            userName:userName, 
+            bookBuyingList:[],   
+            price:0,
+            book:[],
+            tag:[
+                  {
                     title: '图片',
-                    dataIndex: 'image',
-                    key: 'image',
-                    render: (text) => <Link to="/details/id"><img src={process.env.PUBLIC_URL+text} style={{maxWidth:'120px'}} alt="" /></Link>,
+                    dataIndex: 'img',
+                    key: 'img',
+                    render: (text) => <img src={process.env.PUBLIC_URL+text} style={{maxWidth:'120px'}} alt="" />,
                   },{
                     title: '名称',
                     dataIndex: 'title',
@@ -54,15 +38,149 @@ class BookList extends Component{
                     key: 'author',
                   }, {
                     title: 'ISBN',
-                    dataIndex: 'ISBN',
+                    dataIndex: 'id',
                     key: 'ISBN',
                   },{
                     title: '库存',
                     dataIndex: 'remaining',
                     key: 'remaining',
+                  },{
+                    title: '价格',
+                    dataIndex: 'price',
+                    key: 'price',
+                  },{
+                    title: '详情',
+                    dataIndex: 'id',
+                    key: 'detail',
+                    render: (text) => <Link to={"/details/"+ text}>图书详情</Link>,
+                  },{
+                    title: '购买',
+                    dataIndex: 'id',
+                    key: 'buy',
+                    render: (text)=> (
+                      <div>
+                        <Button id="1" onClick={()=>{this.reduceBook(text)}} size="small" style={{ width: 30 }} >-</Button>
+                        <Input value={this.getVal(text)} type="primary" style={{ width: 60,textAlign:"center" }}></Input>
+                        <Button id="2" onClick={()=>{this.addBook(text)}} size="small" style={{ width: 30 }} >+</Button>
+                      </div> 
+                    )
                   }
             ]
+        } 
+    }
+
+    componentDidMount(){
+      axios.get("http://localhost:8080/detail/id").then(response=>{
+            var dat = response.data;
+            for(var i=0; i<dat.length;i++){
+              dat[i].key=i;
+            }
+            this.setState({
+              book:dat
+            })
+          })  
+    }
+
+    getVal = (id)=>{
+      var bookBuyingList = this.state.bookBuyingList;
+      for(var b=0;b <bookBuyingList.length ; b++){
+        if(bookBuyingList[b].id === id){
+          return bookBuyingList[b].num;
         }
+      }
+      return 0;
+    }
+
+    addBook = (id)=>{
+      var bookBuyingList = this.state.bookBuyingList;
+      var flag = true;
+      for(var b=0;b <bookBuyingList.length ; b++){
+        if(bookBuyingList[b].id === id){
+          bookBuyingList[b].num += 1;
+          this.setState({
+            price: this.state.price + this.state.book[id].price
+          });
+          flag = false;
+          break;
+        }
+      }
+      if(flag){
+        bookBuyingList.push({
+          id:id,
+          num:1
+        });
+        this.setState({
+          price: this.state.price + this.state.book[id].price
+        });
+      }
+      
+      this.setState({
+        bookBuyingList:bookBuyingList
+      });
+    }
+
+    reduceBook = (id)=>{
+      var bookBuyingList = this.state.bookBuyingList;
+      for(var b=0;b <bookBuyingList.length ; b++){
+        if(bookBuyingList[b].id === id){
+          if(bookBuyingList[b].num>0){
+            bookBuyingList[b].num -= 1;
+            this.setState({
+              price: this.state.price - this.state.book[id].price
+            });
+            if(bookBuyingList[b].num === 0){
+              bookBuyingList.splice(b,1);
+            }
+            break;
+          }
+        }
+      }
+      
+      this.setState({
+        bookBuyingList:bookBuyingList,
+      });
+    }
+
+    subMitOrder = ()=>{
+      axios.get("http://localhost:8080/order",{
+        params:{
+          userName:this.state.userName
+        }
+      }).then((res)=>{
+        handleGet(res.data)
+        
+      })
+      
+
+      var handleGet = (num)=>{
+        var bookBuyingList = this.state.bookBuyingList;
+        var books=[];
+        var date = new Date()
+        for(var i = 0;i<bookBuyingList.length;i++){
+          books.push({
+            userName:this.state.userName,
+            detailId: bookBuyingList[i].id,
+            bookNumber:bookBuyingList[i].num,
+            orderId:this.state.userName+"_"+ num.toString()+"_"+date.toDateString()
+          })
+        }
+        
+        axios.post("http://localhost:8080/order",
+          books
+        ).then(()=>{
+          this.setState({bookBuyingList:[],price:0})
+          axios.get("http://localhost:8080/detail/id").then(response=>{
+            var dat = response.data;
+            for(var i=0; i<dat.length;i++){
+              dat[i].key=i;
+            }
+            this.setState({
+              book:dat
+            })
+          })
+        }
+        )
+      }
     }
 
     getColumnSearchProps = (dataIndex) => ({
@@ -72,27 +190,27 @@ class BookList extends Component{
           <div style={{ padding: 8 }}>
             <Input
               ref={node => { this.searchInput = node; }}
-              placeholder={`Search ${dataIndex}`}
+              placeholder={`搜索书名`}
               value={selectedKeys[0]}
               onChange={e => setSelectedKeys(e.target.value ? [e.target.value] : [])}
               onPressEnter={() => this.handleSearch(selectedKeys, confirm)}
               style={{ width: 188, marginBottom: 8, display: 'block' }}
             />
-            <Button
+            <Button id="3"
               type="primary"
               onClick={() => this.handleSearch(selectedKeys, confirm)}
               icon="search"
               size="small"
               style={{ width: 90, marginRight: 8 }}
             >
-              Search
+              搜索
             </Button>
-            <Button
+            <Button id="4"
               onClick={() => this.handleReset(clearFilters)}
               size="small"
               style={{ width: 90 }}
             >
-              Reset
+              重置
             </Button>
           </div>
         ),
@@ -123,29 +241,48 @@ class BookList extends Component{
       this.setState({ searchText: '' });
     }
 
+    sumPrice = ()=>{
+      var result = 0;
+      this.state.bookBuyingList.forEach(element,()=>{
+        result += this.state.book[element.id].price
+      })
+      return result;
+    }
+
     render(){
         return (
             <Layout>
-            <Header className="header">
-                <div className="logo" />
-                <Menu theme="dark" mode="horizontal" style={{ lineHeight: '64px' }} >
-                <Menu.Item key="0"><Link to="/">{ this.state.userName }</Link></Menu.Item>
-                <Menu.Item key="1"><Link to="/logIn">用户注册</Link></Menu.Item>
-                <Menu.Item key="2"><Link to="/bookList">图书列表</Link></Menu.Item>
-                <Menu.Item key="3"><Link to="/orders">历史订单</Link></Menu.Item>
-                <Menu.Item key="4"><Link to="/analize">统计信息</Link></Menu.Item>
-                </Menu>
-            </Header>
+            <Navigation userName={this.state.userName}/>
             <Layout style={{ padding: '0 24px 24px' }}>
                 <Content style={{
                 background: '#fff', padding: 24, margin: 0, minHeight: 450,
                 }}>
                 <Table columns={this.state.tag} dataSource={this.state.book} />
+                <Collapse defaultActiveKey={['1']} >
+                  <Panel header="购物车" key="1">
+                  <List
+                    bordered
+                    footer={
+                      <div id="submitButton">
+                        <p>总价：{this.state.price}</p>
+                        <Button id="5" onClick={this.subMitOrder} size="default" style={{ width: 200 }}>确认订单</Button>
+                        <Button id="6" onClick={()=>{this.setState({bookBuyingList:[],price:0})}} size="default" style={{ width: 200 }}>清空</Button>
+                      </div> 
+                    }
+                    dataSource={this.state.bookBuyingList}
+                    renderItem={item => (
+                      <List.Item> 
+                      <p>名称：{this.state.book[item.id].title}</p>
+                      <hr></hr>
+                      <p>数量：{item.num}</p>
+                      <p>价格：{this.state.book[item.id].price}</p>
+                      </List.Item>)}
+                  />
+                  </Panel>
+                </Collapse>
                 </Content>
             </Layout>
-            <Footer style={{ textAlign: 'center' }}>
-            E-BOOK ©2019 Created by Wang Xiaoran
-            </Footer>
+            <Tagger />
             </Layout>
             
         );

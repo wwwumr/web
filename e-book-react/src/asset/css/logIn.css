@@ -1,7 +1,18 @@
 #input{
     position: fixed;
     text-align: center;
-    width: 300px;
+    width: 20%;
     top: 200px;
-    left: 500px;
+    left: 40%;
+}
+
+#logIn{
+    position: relative;
+    font-size: 500%;
+    text-align: center;
+    top: 50px;
+}
+
+#input *{
+    margin: 2px;
 }

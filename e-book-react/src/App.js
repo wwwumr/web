@@ -15,11 +15,11 @@ class App extends Component {
       <HashRouter>
         <Switch>
             <Route exact path="/" component={HomePage}/>
-            <Route exact path="/bookList" component={BookList}/>
-            <Route exact path="/logIn" component={LogIn}/>
+            <Route exact path="/bookList/:userName" component={BookList}/>
+            <Route exact path="/logIn/" component={LogIn}/>
             <Route exact path="/details/:id" component={Details}/>
-            <Route exact path="/orders" component={Orders}/>
-            <Route exact path="/analize" component={Analize}/>
+            <Route exact path="/orders/:userName" component={Orders}/>
+            <Route exact path="/analize/:userName" component={Analize}/>
         </Switch>
       </HashRouter>
     );

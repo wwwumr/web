@@ -1,10 +1,73 @@
 import React, { Component } from 'react';
 import 'antd/dist/antd.css';
-import {Layout, Menu } from 'antd';
-import {Link} from 'react-router-dom';
+import {
+    Icon, Input, Button,Layout
+  } from 'antd';
 import '../asset/css/homePage.css'
+import Tagger from './footer';
+import Axios from 'axios';
+import {Link } from 'react-router-dom';
+import { createHashHistory } from 'history';
 
-const { Header, Content, Footer} = Layout;
+const history = createHashHistory();
+
+const { Content} = Layout;
+
+class LogInCompo extends React.Component {
+  constructor(props){
+    super(props);
+    this.state={
+        userName:"user"
+    }
+  }
+
+
+    handleClick = () => {
+        var getVal = (s)=>{
+            return document.getElementById(s).value;
+        }
+
+        var password = getVal("password");
+        var userName = getVal("userName");
+
+        this.setState({
+          userName:userName
+        })
+
+
+        Axios.get("http://localhost:8080/user/logIn",{
+            params:{
+                userName:userName
+            }
+        }).then((response)=>{
+            console.log(response.data);
+            if(!response.data){
+                alert("用户名不存在");
+            }else if(response.data.password === password){
+                this.setState({userName:userName});
+                history.push("/bookList/"+ this.state.userName);
+            }else{
+                alert("密码输入错误");
+            }
+        })
+    }
+  
+    render() {
+      return (
+          <div>
+            <Input id="userName" prefix={<Icon type="user" style={{ color: 'rgba(0,0,0,.25)' }} />} placeholder="用户名：" />
+            <Input id="password" prefix={<Icon type="lock" style={{ color: 'rgba(0,0,0,.25)' }} />} type="password" placeholder="密码：" />
+          
+            <Button onClick={this.handleClick} type="primary" htmlType="button" className="login-form-button">
+              登录
+            </Button>
+            OR <Link to="logIn">注册</Link>
+          </div>
+      );
+    }
+}
+  
+
 
 class HomePage extends Component{
     constructor(props){
@@ -12,44 +75,29 @@ class HomePage extends Component{
         this.state={
             userName:"user"
         }
+        
     }
+
+
+
     render(){
         return (
             <Layout>
-            <Header className="header">
-                <div className="logo" />
-                <Menu theme="dark" mode="horizontal"  style={{ lineHeight: '64px' }} >
-                <Menu.Item key="0"><Link to="/">{ this.state.userName }</Link></Menu.Item>
-                <Menu.Item key="1"><Link to="/logIn">用户注册</Link></Menu.Item>
-                <Menu.Item key="2"><Link to="/bookList">图书列表</Link></Menu.Item>
-                <Menu.Item key="3"><Link to="/orders">历史订单</Link></Menu.Item>
-                <Menu.Item key="4"><Link to="/analize">统计信息</Link></Menu.Item>
-                </Menu>
-            </Header>
             <Layout style={{ padding: '0 24px 24px' }}>
                 <Content style={{
                 background: '#fff', padding: 24, margin: 0, minHeight: 450,
                 }}>
-                <div>
+                <div id="container">
                     <p id ="themeP">E-BOOK</p>
+                    <div className="logContainer">
+                    <LogInCompo userName={this.state.userName}/>
+                    </div>
                 </div>
 
-                <div class="logContainer">
-                    <div class="logInput">
-                        <input  type="text" value="用户名："/>
-                        <input  type="text" value="密码："/>
-                    </div>
-                    <div class="logButton">
-                        <Link to="/bookList"><button >
-                            登录
-                        </button></Link>
-                    </div>
-                </div>
+                
                 </Content>
             </Layout>
-            <Footer style={{ textAlign: 'center' ,top: '100px' }}>
-            E-BOOK ©2019 Created by Wang Xiaoran
-            </Footer>
+            <Tagger />
             </Layout>
             
         );
