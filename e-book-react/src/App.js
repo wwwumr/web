@@ -7,6 +7,7 @@ import Details from './components/details'
 import BookList from './components/bookList'
 import Orders from './components/orders'
 import Analize from './components/analize'
+import userManag from './components/userManag'
 
 
 class App extends Component {
@@ -15,9 +16,10 @@ class App extends Component {
       <HashRouter>
         <Switch>
             <Route exact path="/" component={HomePage}/>
+            <Route exact path="/userManag/:userName" component={userManag}/>
             <Route exact path="/bookList/:userName" component={BookList}/>
             <Route exact path="/logIn/" component={LogIn}/>
-            <Route exact path="/details/:id" component={Details}/>
+            <Route exact path="/details/:id/:userName" component={Details}/>
             <Route exact path="/orders/:userName" component={Orders}/>
             <Route exact path="/analize/:userName" component={Analize}/>
         </Switch>

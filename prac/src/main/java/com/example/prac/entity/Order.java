@@ -1,72 +1,68 @@
 package com.example.prac.entity;
 
-import com.fasterxml.jackson.annotation.JsonAlias;
-import jdk.nashorn.internal.objects.annotations.Getter;
-import jdk.nashorn.internal.objects.annotations.Setter;
+import org.hibernate.annotations.Proxy;
 
 import javax.persistence.*;
 
 @Entity
+@Proxy(lazy = false)
 @Table(name = "orders")
 public class Order {
     @Id
-    @GeneratedValue
-    private Integer id;
+    @Column(name = "order_id")
+    private Integer orderId;
     @Column(name = "user_name")
     private String userName;
-    @Column(name = "detail_id")
-    private Integer detailId;
-    @Column(name = "book_number")
-    private Integer bookNumber;
-    @Column(name = "order_id")
-    private String orderId;
+    @Column(name = "order_time")
+    private String orderTime;
+    @Column(name = "total")
+    private Integer total;
 
     public Order(){
 
     }
-    public Integer getId() {
-        return id;
+
+    public Integer getOrderId() {
+        return orderId;
     }
 
-    public void setId(Integer id) {
-        this.id = id;
-    }
-
-
-    public Integer getDetailId() {
-        return detailId;
-    }
-
-    public Integer getBookNumber() {
-        return bookNumber;
+    public String getOrderTime() {
+        return orderTime;
     }
 
     public String getUserName() {
         return userName;
     }
 
-    public void setDetailId(Integer detailId) {
-        this.detailId = detailId;
+    public void setOrderId(Integer orderId) {
+        this.orderId = orderId;
     }
 
-    public void setBookNumber(Integer bookNumber) {
-        this.bookNumber = bookNumber;
+    public void setOrderTime(String orderTime) {
+        this.orderTime = orderTime;
     }
 
     public void setUserName(String userName) {
         this.userName = userName;
     }
 
-    public String getOrderId() {
-        return orderId;
+    public Integer getTotal() {
+        return total;
     }
 
-    public void setOrderId(String orderId) {
-        this.orderId = orderId;
+    public void setTotal(Integer total) {
+        this.total = total;
     }
 
-    @Override
-    public String toString() {
-        return super.toString();
-    }
+    /*@OneToMany(cascade = CascadeType.ALL,fetch = FetchType.LAZY)
+    @JoinColumn(name = "order_id")
+    private List<OrderItem> orderItemList;
+
+    @ManyToOne(cascade = {CascadeType.MERGE,CascadeType.REFRESH},optional = false)
+    @JoinColumn(name = "userName",referencedColumnName = "name")
+    private User user;
+
+    public List<OrderItem> getOrderItemList() {
+        return orderItemList;
+    }*/
 }

@@ -1,4 +1,10 @@
 package com.example.prac.service;
 
-public class UserService {
+import com.example.prac.entity.User;
+import org.springframework.stereotype.Service;
+
+public interface UserService {
+
+    User getUser(String name);
+    void addUser(User user);
 }

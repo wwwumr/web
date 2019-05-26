@@ -6,27 +6,35 @@ import axios from 'axios';
 import {Link} from 'react-router-dom';
 import Navigation from './header';
 import Tagger from './footer';
-import { element } from 'prop-types';
+import mockData from './mock'
 
 const {Content} = Layout;
 const Panel = Collapse.Panel;
+const CHANGE_TYPE={
+  ADD : 0,
+  REDUCE : 1,
+  RESET : 2
+}
 
 class BookList extends Component{
     constructor(props){
         super(props);
-        const userName = this.props.match.params.userName;
+
         this.state={
             searchText: '',
-            userName:userName, 
-            bookBuyingList:[],   
-            price:0,
+            /* user name */
+            userName:this.props.match.params.userName, 
+            /* save current order */
+            bookOrder:{}, 
+            /* get book data by axios */
             book:[],
+            /* table message */
             tag:[
                   {
                     title: '图片',
-                    dataIndex: 'img',
+                    dataIndex: 'isbn',
                     key: 'img',
-                    render: (text) => <img src={process.env.PUBLIC_URL+text} style={{maxWidth:'120px'}} alt="" />,
+                    render: (text) => <img src={process.env.PUBLIC_URL+'/img/'+text+'.jpg'} style={{maxWidth:'120px'}} alt="" />,
                   },{
                     title: '名称',
                     dataIndex: 'title',
@@ -38,8 +46,8 @@ class BookList extends Component{
                     key: 'author',
                   }, {
                     title: 'ISBN',
-                    dataIndex: 'id',
-                    key: 'ISBN',
+                    dataIndex: 'isbn',
+                    key: 'isbn',
                   },{
                     title: '库存',
                     dataIndex: 'remaining',
@@ -50,139 +58,222 @@ class BookList extends Component{
                     key: 'price',
                   },{
                     title: '详情',
-                    dataIndex: 'id',
+                    dataIndex: 'book_id',
                     key: 'detail',
-                    render: (text) => <Link to={"/details/"+ text}>图书详情</Link>,
+                    render: (text) => <Link to={"/details/"+ text+"/"+this.state.userName}>图书详情</Link>,
                   },{
                     title: '购买',
-                    dataIndex: 'id',
+                    dataIndex: 'book_id',
                     key: 'buy',
                     render: (text)=> (
                       <div>
-                        <Button id="1" onClick={()=>{this.reduceBook(text)}} size="small" style={{ width: 30 }} >-</Button>
-                        <Input value={this.getVal(text)} type="primary" style={{ width: 60,textAlign:"center" }}></Input>
-                        <Button id="2" onClick={()=>{this.addBook(text)}} size="small" style={{ width: 30 }} >+</Button>
+                        <Button id={"button1"+text} onClick={()=>{this.renewOrder(text,CHANGE_TYPE.REDUCE)}} size="small" style={{ width: 30 }} >-</Button>
+                        <Input id={"input"+text} onChange={()=>{this.renewOrder(text,CHANGE_TYPE.RESET)}} 
+                        value={this.renewInputValue(text)}
+                        type="primary" style={{ width: 60,textAlign:"center" }}></Input>
+                        <Button id={"button2"+text} onClick={()=>{this.renewOrder(text,CHANGE_TYPE.ADD)}} size="small" style={{ width: 30 }} >+</Button>
                       </div> 
                     )
                   }
-            ]
+              ]
         } 
+
     }
 
+
+    /* get book data */
     componentDidMount(){
-      axios.get("http://localhost:8080/detail/id").then(response=>{
-            var dat = response.data;
-            for(var i=0; i<dat.length;i++){
-              dat[i].key=i;
-            }
-            this.setState({
-              book:dat
-            })
-          })  
-    }
 
-    getVal = (id)=>{
-      var bookBuyingList = this.state.bookBuyingList;
-      for(var b=0;b <bookBuyingList.length ; b++){
-        if(bookBuyingList[b].id === id){
-          return bookBuyingList[b].num;
-        }
-      }
-      return 0;
-    }
-
-    addBook = (id)=>{
-      var bookBuyingList = this.state.bookBuyingList;
-      var flag = true;
-      for(var b=0;b <bookBuyingList.length ; b++){
-        if(bookBuyingList[b].id === id){
-          bookBuyingList[b].num += 1;
-          this.setState({
-            price: this.state.price + this.state.book[id].price
-          });
-          flag = false;
-          break;
-        }
-      }
-      if(flag){
-        bookBuyingList.push({
-          id:id,
-          num:1
-        });
+        var book = mockData[0];
+        book.forEach((elem)=>{
+          elem.key = elem.book_id;
+        })
         this.setState({
-          price: this.state.price + this.state.book[id].price
-        });
-      }
-      
-      this.setState({
-        bookBuyingList:bookBuyingList
-      });
+          book:book,
+          bookOrder:mockData[1]
+        })
     }
 
-    reduceBook = (id)=>{
-      var bookBuyingList = this.state.bookBuyingList;
-      for(var b=0;b <bookBuyingList.length ; b++){
-        if(bookBuyingList[b].id === id){
-          if(bookBuyingList[b].num>0){
-            bookBuyingList[b].num -= 1;
-            this.setState({
-              price: this.state.price - this.state.book[id].price
-            });
-            if(bookBuyingList[b].num === 0){
-              bookBuyingList.splice(b,1);
-            }
-            break;
-          }
-        }
-      }
-      
-      this.setState({
-        bookBuyingList:bookBuyingList,
-      });
-    }
 
-    subMitOrder = ()=>{
-      axios.get("http://localhost:8080/order",{
-        params:{
-          userName:this.state.userName
-        }
-      }).then((res)=>{
-        handleGet(res.data)
-        
+    /* check is in the order and  add one book */
+    addBook = (book_id)=>{
+      // check if this item is already in the order
+      var orderItem = this.state.bookOrder.items.find((elem)=>{
+        return elem.book_id === book_id
+      })
+
+      // get target book detail message
+      var targetBook = this.state.book.find((elem)=>{
+        return elem.book_id === book_id;
       })
       
-
-      var handleGet = (num)=>{
-        var bookBuyingList = this.state.bookBuyingList;
-        var books=[];
-        var date = new Date()
-        for(var i = 0;i<bookBuyingList.length;i++){
-          books.push({
-            userName:this.state.userName,
-            detailId: bookBuyingList[i].id,
-            bookNumber:bookBuyingList[i].num,
-            orderId:this.state.userName+"_"+ num.toString()+"_"+date.toDateString()
-          })
-        }
+      var bookOrder = this.state.bookOrder;
+      if(!orderItem){//not in
+        bookOrder.items.push({
+          book_id:book_id,
+          amount:1
+        })
         
-        axios.post("http://localhost:8080/order",
-          books
-        ).then(()=>{
-          this.setState({bookBuyingList:[],price:0})
-          axios.get("http://localhost:8080/detail/id").then(response=>{
-            var dat = response.data;
-            for(var i=0; i<dat.length;i++){
-              dat[i].key=i;
-            }
-            this.setState({
-              book:dat
-            })
+      }else{//in the order
+        var index = bookOrder.items.indexOf(orderItem);
+        bookOrder.items.splice(index,1,{
+          book_id: book_id,
+          amount: orderItem.amount + 1
+        })
+      }
+      //renew price
+      bookOrder.total += targetBook.price;
+      // renew state 
+      this.setState({
+        bookOrder:bookOrder
+      })
+    }
+
+    /* check amount===1 ? and reduce one book */
+    reduceBook = (book_id)=>{
+      // check if this item is already in the order 
+      var orderItem = this.state.bookOrder.items.find((elem)=>{
+        return elem.book_id === book_id
+      });
+
+      // get target book detail message
+      var targetBook = this.state.book.find((elem)=>{
+        return elem.book_id === book_id;
+      })
+
+      var bookOrder = this.state.bookOrder;
+      if(orderItem){//if in the order
+        
+        var index = bookOrder.items.indexOf(orderItem);
+        // check if amount reduced to 0 
+        if(orderItem.amount === 1){//0
+          bookOrder.items.splice(index,1);
+        }else{// >0
+          // reduce one book 
+          
+          bookOrder.items.splice(index,1,{
+            book_id: book_id,
+            amount: orderItem.amount - 1
           })
         }
-        )
+        //renew total
+        bookOrder.total -= targetBook.price;
+
+        // renew state 
+        this.setState({
+          bookOrder:bookOrder
+        })
       }
     }
 
+    /* reset the amount of a book in the order */
+    resetBookOrder = (book_id)=>{
+      // check if this item is already in the order 
+      var orderItem = this.state.bookOrder.items.find((elem)=>{
+        return elem.book_id === book_id;
+      })
+
+      // get target book detail message
+      var targetBook = this.state.book.find((elem)=>{
+        return elem.book_id === book_id;
+      })
+
+      var inputValue = document.getElementById("input"+book_id).value;
+      var num = parseInt(inputValue)?parseInt(inputValue):0;
+
+      //check if this num is valid
+      if(num<0 || num > targetBook.remaining){
+        document.getElementById("input"+book_id).value = orderItem.amount;
+        return;
+      }
+
+      var bookOrder = this.state.bookOrder;
+      if(!orderItem){//not in
+        bookOrder.items.push({
+          book_id:book_id,
+          amount:num
+        })
+      }else if(num !== 0){//in the order and num is not 0
+        var bookIndex = bookOrder.items.indexOf(orderItem);
+        bookOrder.items[bookIndex]={
+          book_id: book_id,
+          amount: num
+        }
+      }else{//num is 0
+        bookIndex = bookOrder.items.indexOf(orderItem);
+        bookOrder.items.splice(bookIndex,1);
+      }
+
+      //renew total
+      bookOrder.total = this.sumPrice();
+
+      // renew state 
+      this.setState({
+        bookOrder:bookOrder
+      })
+    }
+
+    /* renew order */
+    renewOrder = (book_id, mode)=>{
+
+      switch(mode){
+        case CHANGE_TYPE.ADD:{
+          this.addBook(book_id);
+          break;
+        }
+        case CHANGE_TYPE.REDUCE:{
+          this.reduceBook(book_id);
+          break;
+        }
+        case CHANGE_TYPE.RESET:{
+          this.resetBookOrder(book_id);
+          break;
+        }
+        default:
+      }
+    }
+
+    /* renew the value of input */
+    renewInputValue = (book_id)=>{
+      var item = this.state.bookOrder.items.find((elem)=>{
+        return elem.book_id === book_id;
+      })
+      return typeof item !== 'undefined'? item.amount : 0;
+    }
+     
+
+    /* submit the order and order items */
+    subMitOrder = ()=>{
+
+        axios.post("http://localhost:8080/order",
+        ).then(res=>{
+
+        })   
+    }
+
+    /* get total price */
+    sumPrice = ()=>{
+      var result = 0;
+      var buyingList = this.state.bookOrder.items;
+      buyingList.forEach((elem)=>{
+        result += elem.amount * 
+        this.state.book.find((element)=>{
+          return element.book_id === elem.book_id;
+        }).price
+      })
+      return result;
+    }
+
+    /* get order items */
+    getTargetBook = (book_id)=>{
+      var targetBook = this.state.book.find((elem)=>{
+        return elem.book_id === book_id;
+      })
+
+      return targetBook;
+    }
+
+    /* antd functions */
     getColumnSearchProps = (dataIndex) => ({
         filterDropdown: ({
           setSelectedKeys, selectedKeys, confirm, clearFilters,
@@ -231,23 +322,18 @@ class BookList extends Component{
         ),
     })
     
+    /* antd functions */
     handleSearch = (selectedKeys, confirm) => {
       confirm();
       this.setState({ searchText: selectedKeys[0] });
     }
     
+    /* antd functions */
     handleReset = (clearFilters) => {
       clearFilters();
       this.setState({ searchText: '' });
     }
 
-    sumPrice = ()=>{
-      var result = 0;
-      this.state.bookBuyingList.forEach(element,()=>{
-        result += this.state.book[element.id].price
-      })
-      return result;
-    }
 
     render(){
         return (
@@ -264,18 +350,28 @@ class BookList extends Component{
                     bordered
                     footer={
                       <div id="submitButton">
-                        <p>总价：{this.state.price}</p>
-                        <Button id="5" onClick={this.subMitOrder} size="default" style={{ width: 200 }}>确认订单</Button>
-                        <Button id="6" onClick={()=>{this.setState({bookBuyingList:[],price:0})}} size="default" style={{ width: 200 }}>清空</Button>
+                        <p>总价：{this.state.bookOrder.total}</p>
+                        <Button id="5" onClick={()=>{this.subMitOrder()}} size="default" style={{ width: 200 }}>确认订单</Button>
+                        <Button id="6" onClick={()=>{
+                            this.setState({
+                              bookOrder:{
+                                total:0,
+                                items:[]
+                              }
+                            })
+                          }  
+                        } size="default" style={{ width: 200 }}>
+                          清空
+                        </Button>
                       </div> 
                     }
-                    dataSource={this.state.bookBuyingList}
-                    renderItem={item => (
+                    dataSource={this.state.bookOrder.items}
+                    renderItem={(item) => (
                       <List.Item> 
-                      <p>名称：{this.state.book[item.id].title}</p>
+                      <p>名称：{this.getTargetBook(item.book_id).title}</p>
                       <hr></hr>
-                      <p>数量：{item.num}</p>
-                      <p>价格：{this.state.book[item.id].price}</p>
+                      <p>数量：{item.amount}</p>
+                      <p>价格：{this.getTargetBook(item.book_id).price}</p>
                       </List.Item>)}
                   />
                   </Panel>
