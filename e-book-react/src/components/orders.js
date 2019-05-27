@@ -15,18 +15,18 @@ class Orders extends Component{
     constructor(props){
         super(props);
         this.state={
-            userName:this.props.match.params.userName||"user",
+            userName:this.props.match.params.userName,
             orderMap:new Map(),
-            details:[],
+            book:[],
             searchText: '',
             orders:[],
             orderCol:[
                 {
                 title: '订单号',
-                dataIndex: 'orderId',
+                dataIndex: 'order_id',
                 key: 'orderId',
                 width: '20%',
-                ...this.getColumnSearchProps('orderId'),
+                ...this.getColumnSearchProps('order_id'),
               }, {
                 title: '价格',
                 dataIndex: 'total',
@@ -35,29 +35,30 @@ class Orders extends Component{
                 ...this.getColumnSearchProps('total'),
               }, {
                 title: '时间',
-                dataIndex: 'date',
+                dataIndex: 'order_time',
                 key: 'date',
                 width: '15%',
-                ...this.getColumnSearchProps('date'),
+                ...this.getColumnSearchProps('order_time'),
               }, {
                 title: '详情',
-                dataIndex: 'orderId',
+                dataIndex: 'items',
                 key: 'detail',
                 width: '40%',
                 render: (text)=> (
                     <div>
-                    <Collapse onChange={console.log(2)}>
+                    
+                    <Collapse>
                         <Panel header="订单详情" key="1">
                             <List
                                 bordered
-                                dataSource={this.state.orderMap[text]}
+                                dataSource={text}
                                 renderItem={item => (
                                 <List.Item> 
-                                <p>   名称：{this.state.details[item.detailId].title}</p>
+                                <p>   名称：{this.getTargetBook(item.orderItemKey.bookId).title} </p>
                                 <hr></hr>
-                                <p>   数量：{item.bookNumber}</p>
+                                <p>   数量：{item.amount}</p>
                                 <hr></hr>
-                                <p>   价格：{this.state.details[item.detailId].price}</p>
+                                <p>   价格：{this.getTargetBook(item.orderItemKey.bookId).price} </p>
                                 </List.Item>)}
                             />
                         </Panel>
@@ -67,63 +68,34 @@ class Orders extends Component{
               }]
         }
     }
-    componentDidMount = ()=>{
-        axios.get("http://localhost:8080/detail/id").then(response=>{
-            var dat = response.data;
+    componentWillMount = ()=>{
+        axios.get("http://localhost:8081/book/id").then(response=>{
+            this.setState({
+              book:response.data
+            })
+        })
+        axios.get("http://localhost:8081/order/"+this.state.userName)
+        .then((res)=>{
+            var dat = res.data; 
             for(var i=0; i<dat.length;i++){
               dat[i].key=i;
             }
             this.setState({
-              details:dat
+              orders:dat
             })
-            getOrder()
-        })
-        var getOrder = ()=>{
-            axios.get("http://localhost:8080/order/"+this.state.userName)
-            .then((res)=>{
-                this.setState({
-                    orderMap:res.data
-                })
-                
-                var orders = [];
-                var orderMap = this.state.orderMap;
-                var sumPrice = (values)=>{
-                    var details = this.state.details;
-                    var result = 0;
-                    for(var i = 0;i<values.length;i++){
-                        result += details[values[i].detailId].price * values[i].bookNumber;
-                    }
-                    return result;
-                }
-                
-                for(var key in orderMap){
-                    var order = {};
-                    var values = orderMap[key];
-                    order["key"] = key;
-                    order["orderId"] = key;
-                    order["total"] = sumPrice(values);
-                    order["date"] = values[0].orderId.slice(values[0].orderId.length-15,values[0].orderId.length);
-                    var detailList = [];
-                    for(var i = 0; i<values.length;i++){
-                        var value = values[i];
-                        detailList.push({
-                            detailId: value.detailId,
-                            detailName : this.state.details[value.detailId].title,
-                            bookNumber: value.bookNumber
-                        })
-                    }
-                    order["detail"] = detailList
-                    orders.push(order);
-                    
-                };
-                this.setState({
-                    orders:orders
-                })   
-            })
-        }
-        
+        })         
     }
 
+    /* get book */
+    getTargetBook = (bookId)=>{
+      var targetBook = this.state.book.find((elem)=>{
+        return elem.bookId === bookId;
+      })
+
+      return targetBook;
+    }
+
+    /* antd functiond */
     getColumnSearchProps = (dataIndex) => ({
         filterDropdown: ({
           setSelectedKeys, selectedKeys, confirm, clearFilters,
@@ -170,17 +142,19 @@ class Orders extends Component{
             textToHighlight={text.toString()}
           />
         ),
-      })
+    })
     
-      handleSearch = (selectedKeys, confirm) => {
+    /* antd functiond */
+    handleSearch = (selectedKeys, confirm) => {
         confirm();
         this.setState({ searchText: selectedKeys[0] });
-      }
+    }
     
-      handleReset = (clearFilters) => {
+    /* antd functiond */
+    handleReset = (clearFilters) => {
         clearFilters();
         this.setState({ searchText: '' });
-      }
+    }
 
     render(){
         return (

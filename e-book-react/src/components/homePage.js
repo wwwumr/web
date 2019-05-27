@@ -14,12 +14,12 @@ const history = createHashHistory();
 const { Content} = Layout;
 
 class LogInCompo extends React.Component {
-  constructor(props){
-    super(props);
-    this.state={
-        userName:"user"
+    constructor(props){
+        super(props);
+        this.state={
+            userName:"user"
+        }
     }
-  }
 
 
     handleClick = () => {
@@ -35,12 +35,11 @@ class LogInCompo extends React.Component {
         })
 
 
-        Axios.get("http://localhost:8080/user/logIn",{
+        Axios.get("http://localhost:8081/user/logIn",{
             params:{
                 userName:userName
             }
         }).then((response)=>{
-            console.log(response.data);
             if(!response.data){
                 alert("用户名不存在");
             }else if(response.data.password === password){
@@ -74,8 +73,7 @@ class HomePage extends Component{
         super(props);
         this.state={
             userName:"user"
-        }
-        
+        }  
     }
 
 
@@ -93,8 +91,6 @@ class HomePage extends Component{
                     <LogInCompo userName={this.state.userName}/>
                     </div>
                 </div>
-
-                
                 </Content>
             </Layout>
             <Tagger />

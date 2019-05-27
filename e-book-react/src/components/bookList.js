@@ -6,7 +6,7 @@ import axios from 'axios';
 import {Link} from 'react-router-dom';
 import Navigation from './header';
 import Tagger from './footer';
-import mockData from './mock'
+
 
 const {Content} = Layout;
 const Panel = Collapse.Panel;
@@ -25,7 +25,13 @@ class BookList extends Component{
             /* user name */
             userName:this.props.match.params.userName, 
             /* save current order */
-            bookOrder:{}, 
+            bookOrder:{
+              user_name:this.props.match.params.userName,
+              total:0,
+              order_time:"",
+              items:[],
+              order_id:null
+            }, 
             /* get book data by axios */
             book:[],
             /* table message */
@@ -58,12 +64,12 @@ class BookList extends Component{
                     key: 'price',
                   },{
                     title: '详情',
-                    dataIndex: 'book_id',
+                    dataIndex: 'bookId',
                     key: 'detail',
                     render: (text) => <Link to={"/details/"+ text+"/"+this.state.userName}>图书详情</Link>,
                   },{
                     title: '购买',
-                    dataIndex: 'book_id',
+                    dataIndex: 'bookId',
                     key: 'buy',
                     render: (text)=> (
                       <div>
@@ -80,44 +86,53 @@ class BookList extends Component{
 
     }
 
+    componentWillMount(){
+      axios.get("http://localhost:8081/book/id").then((res)=>{
+          var dat = res.data;
+          for(var i=0; i<dat.length;i++){
+            dat[i].key=i;
+          }
+          this.setState({
+            book: dat
+          })
+        })
+    }
 
     /* get book data */
     componentDidMount(){
-
-        var book = mockData[0];
+        var book = this.state.book;
         book.forEach((elem)=>{
-          elem.key = elem.book_id;
+          elem.key = elem.bookId;
         })
         this.setState({
           book:book,
-          bookOrder:mockData[1]
-        })
+        }) 
     }
 
 
     /* check is in the order and  add one book */
-    addBook = (book_id)=>{
+    addBook = (bookId)=>{
       // check if this item is already in the order
       var orderItem = this.state.bookOrder.items.find((elem)=>{
-        return elem.book_id === book_id
+        return elem.bookId === bookId
       })
 
       // get target book detail message
       var targetBook = this.state.book.find((elem)=>{
-        return elem.book_id === book_id;
+        return elem.bookId === bookId;
       })
       
       var bookOrder = this.state.bookOrder;
       if(!orderItem){//not in
         bookOrder.items.push({
-          book_id:book_id,
+          bookId:bookId,
           amount:1
         })
         
       }else{//in the order
         var index = bookOrder.items.indexOf(orderItem);
         bookOrder.items.splice(index,1,{
-          book_id: book_id,
+          bookId: bookId,
           amount: orderItem.amount + 1
         })
       }
@@ -130,15 +145,15 @@ class BookList extends Component{
     }
 
     /* check amount===1 ? and reduce one book */
-    reduceBook = (book_id)=>{
+    reduceBook = (bookId)=>{
       // check if this item is already in the order 
       var orderItem = this.state.bookOrder.items.find((elem)=>{
-        return elem.book_id === book_id
+        return elem.bookId === bookId
       });
 
       // get target book detail message
       var targetBook = this.state.book.find((elem)=>{
-        return elem.book_id === book_id;
+        return elem.bookId === bookId;
       })
 
       var bookOrder = this.state.bookOrder;
@@ -152,7 +167,7 @@ class BookList extends Component{
           // reduce one book 
           
           bookOrder.items.splice(index,1,{
-            book_id: book_id,
+            bookId: bookId,
             amount: orderItem.amount - 1
           })
         }
@@ -167,36 +182,36 @@ class BookList extends Component{
     }
 
     /* reset the amount of a book in the order */
-    resetBookOrder = (book_id)=>{
+    resetBookOrder = (bookId)=>{
       // check if this item is already in the order 
       var orderItem = this.state.bookOrder.items.find((elem)=>{
-        return elem.book_id === book_id;
+        return elem.bookId === bookId;
       })
 
       // get target book detail message
       var targetBook = this.state.book.find((elem)=>{
-        return elem.book_id === book_id;
+        return elem.bookId === bookId;
       })
 
-      var inputValue = document.getElementById("input"+book_id).value;
+      var inputValue = document.getElementById("input"+bookId).value;
       var num = parseInt(inputValue)?parseInt(inputValue):0;
 
       //check if this num is valid
       if(num<0 || num > targetBook.remaining){
-        document.getElementById("input"+book_id).value = orderItem.amount;
+        document.getElementById("input"+bookId).value = orderItem.amount;
         return;
       }
 
       var bookOrder = this.state.bookOrder;
-      if(!orderItem){//not in
+      if(!orderItem && num!==0){//not in
         bookOrder.items.push({
-          book_id:book_id,
+          bookId:bookId,
           amount:num
         })
       }else if(num !== 0){//in the order and num is not 0
         var bookIndex = bookOrder.items.indexOf(orderItem);
         bookOrder.items[bookIndex]={
-          book_id: book_id,
+          bookId: bookId,
           amount: num
         }
       }else{//num is 0
@@ -214,19 +229,19 @@ class BookList extends Component{
     }
 
     /* renew order */
-    renewOrder = (book_id, mode)=>{
+    renewOrder = (bookId, mode)=>{
 
       switch(mode){
         case CHANGE_TYPE.ADD:{
-          this.addBook(book_id);
+          this.addBook(bookId);
           break;
         }
         case CHANGE_TYPE.REDUCE:{
-          this.reduceBook(book_id);
+          this.reduceBook(bookId);
           break;
         }
         case CHANGE_TYPE.RESET:{
-          this.resetBookOrder(book_id);
+          this.resetBookOrder(bookId);
           break;
         }
         default:
@@ -234,21 +249,40 @@ class BookList extends Component{
     }
 
     /* renew the value of input */
-    renewInputValue = (book_id)=>{
+    renewInputValue = (bookId)=>{
       var item = this.state.bookOrder.items.find((elem)=>{
-        return elem.book_id === book_id;
+        return elem.bookId === bookId;
       })
       return typeof item !== 'undefined'? item.amount : 0;
     }
      
-
     /* submit the order and order items */
     subMitOrder = ()=>{
-
-        axios.post("http://localhost:8080/order",
-        ).then(res=>{
-
-        })   
+        axios.get("http://localhost:8081/order/orderNum").then((res)=>{
+            var buyingList = this.state.bookOrder;
+            if(buyingList.items.length===0){
+              return ;
+            }
+            var date = new Date();
+            buyingList.order_time = date.getFullYear()+"-"+(date.getMonth()+1)+"-"+date.getDate()+" "+
+                date.getHours()+":"+date.getMinutes()+":"+date.getSeconds();
+            buyingList.order_id = parseInt(res.data);
+            for(var i = 0;i<buyingList.items.length;i++){
+              buyingList.items[i].order_id = buyingList.order_id;
+              buyingList.items[i].book_id = buyingList.items[i].bookId;
+              delete buyingList.items[i].bookId;
+            }    
+            axios.post("http://localhost:8081/order",buyingList
+            )
+            this.setState({
+              bookOrder:{
+                total:0,
+                items:[]
+              }
+            })
+        })  
+        
+        
     }
 
     /* get total price */
@@ -258,16 +292,16 @@ class BookList extends Component{
       buyingList.forEach((elem)=>{
         result += elem.amount * 
         this.state.book.find((element)=>{
-          return element.book_id === elem.book_id;
+          return element.bookId === elem.bookId;
         }).price
       })
       return result;
     }
 
     /* get order items */
-    getTargetBook = (book_id)=>{
+    getTargetBook = (bookId)=>{
       var targetBook = this.state.book.find((elem)=>{
-        return elem.book_id === book_id;
+        return elem.bookId === bookId;
       })
 
       return targetBook;
@@ -368,10 +402,10 @@ class BookList extends Component{
                     dataSource={this.state.bookOrder.items}
                     renderItem={(item) => (
                       <List.Item> 
-                      <p>名称：{this.getTargetBook(item.book_id).title}</p>
+                      <p>名称：{this.getTargetBook(item.bookId).title}</p>
                       <hr></hr>
                       <p>数量：{item.amount}</p>
-                      <p>价格：{this.getTargetBook(item.book_id).price}</p>
+                      <p>价格：{this.getTargetBook(item.bookId).price}</p>
                       </List.Item>)}
                   />
                   </Panel>

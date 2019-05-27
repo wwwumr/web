@@ -3,7 +3,7 @@ import 'antd/dist/antd.css';
 import {Layout} from 'antd';
 import Navigation from './header';
 import Tagger from './footer';
-import mockData from './mock'
+import axios from 'axios';
 
 const {Content} = Layout;
 
@@ -13,24 +13,24 @@ class Details extends Component{
         this.state={
             id:parseInt(this.props.match.params.id),
             userName:this.props.match.params.userName,
-            book:[],
-            targetBook:{},
+            book:{
+                book_id:null,
+                title : '',
+                author :'',
+                isbn : null,
+                remaining :null,
+                price :null,
+                introduction :''
+            },
         }
     }
 
     componentWillMount(){
-        this.setState({
-            book:mockData[0]
-        })
-    }
-
-    componentDidMount=()=>{
-        var targetBook = this.state.book.find((elem)=>{
-            return elem.book_id === this.state.id;
-        })
-
-        this.setState({
-            targetBook:targetBook
+        axios.get("http://localhost:8081/book/"+this.state.id).then((res)=>{
+          var dat = res.data;
+          this.setState({
+            book: dat
+          })
         })
     }
 
@@ -45,14 +45,14 @@ class Details extends Component{
                 }}>
                 <div>
                     <div id="header">
-                        <h1>{ this.state.targetBook.title }</h1>
-                        <p>作  者：{this.state.targetBook.author}</p>
-                        <img src= {process.env.PUBLIC_URL+"/img/"+this.state.targetBook.isbn+".jpg"} alt="" />
+                        <h1>{ this.state.book.title }</h1>
+                        <p>作  者：{this.state.book.author}</p>
+                        <img src= {process.env.PUBLIC_URL+"/img/"+this.state.book.isbn+".jpg"} alt="" />
                     </div>
                     <div id="introduction">
                         <h2>书目简介</h2>
                         <br />
-                        <p>{ this.state.targetBook.introduction }</p>
+                        <p>{ this.state.book.introduction }</p>
                         <hr />
                     </div>
                 </div>

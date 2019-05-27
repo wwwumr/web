@@ -8,4 +8,5 @@ import java.util.Map;
 public interface OrderService {
     List<Map<String,Object>> getOrders(String userName);
     void putOrder(Map<String,Object> orderData);
+    Integer getOrderNum();
 }

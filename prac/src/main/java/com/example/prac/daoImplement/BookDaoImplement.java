@@ -11,16 +11,19 @@ import java.util.List;
 @Repository
 public class BookDaoImplement implements BookDao {
     @Autowired
-    private BookRepo detailRepo;
+    private BookRepo bookRepo;
 
     @Override
     public List<Book> findAll() {
-        return detailRepo.findAll();
+        return bookRepo.findAll();
     }
 
     @Override
     public Book findOne(Integer id){
-        return detailRepo.getOne(id);
+        return bookRepo.getOne(id);
     }
 
+    public void putOne(Book book){
+        bookRepo.save(book);
+    }
 }

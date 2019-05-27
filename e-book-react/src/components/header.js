@@ -23,6 +23,7 @@ class Navigation extends Component{
             })
         }else{
             document.getElementById("userManag").style.visibility="hidden"
+            document.getElementById("analize").style.visibility="hidden"
         }
     }
 
@@ -39,7 +40,7 @@ class Navigation extends Component{
                         </Link>
                     </Menu.Item>
                     <Menu.Item key="4"><Link to={"/orders/"+this.state.userName}>订单管理</Link></Menu.Item>
-                    <Menu.Item key="5"><Link to={"/analize/"+this.state.userName}>统计信息</Link></Menu.Item>
+                    <Menu.Item id="analize" key="5"><Link to={"/analize/"+this.state.userName}>统计信息</Link></Menu.Item>
                     <Menu.Item id='userManag' key="1"><Link to={"/userManag/"+this.state.userName}>用户管理</Link></Menu.Item>
                 </Menu>
             </Header>

@@ -1,7 +1,10 @@
 package com.example.prac.serviceImplement;
 
+
+import com.example.prac.dao.BookDao;
 import com.example.prac.dao.OrderDao;
 import com.example.prac.dao.OrderItemDao;
+import com.example.prac.entity.Book;
 import com.example.prac.entity.Order;
 import com.example.prac.entity.OrderItem;
 import com.example.prac.entity.OrderItemKey;
@@ -20,6 +23,8 @@ public class OrderServiceImplement implements OrderService {
     private OrderDao orderDao;
     @Autowired
     private OrderItemDao orderItemDao;
+    @Autowired
+    private BookDao bookDao;
 
     public List<Map<String,Object>> getOrders(String userName) {
         List<Order> orderList = orderDao.getOrders(userName);
@@ -28,13 +33,18 @@ public class OrderServiceImplement implements OrderService {
     }
 
     public void putOrder(Map<String,Object> orderData) {
-        parseOrder(orderData);
-        parseOrderItem(orderData);
+        Integer orderId = orderDao.getOrderNum();
+        parseOrder(orderData,orderId);
+        parseOrderItem(orderData,orderId);
     }
 
-    private void parseOrder(Map<String,Object> orderData){
+    public Integer getOrderNum(){
+        return orderDao.getOrderNum();
+    }
+
+    private void parseOrder(Map<String,Object> orderData,Integer orderId){
         Order order = new Order();
-        order.setOrderId((Integer) orderData.get("order_id"));
+        order.setOrderId(orderId);
         order.setUserName((String) orderData.get("user_name"));
         order.setOrderTime((String) orderData.get("order_time"));
         order.setTotal((Integer) orderData.get("total"));
@@ -42,20 +52,26 @@ public class OrderServiceImplement implements OrderService {
         orderDao.putOrder(order);
     }
 
-    private void parseOrderItem(Map<String,Object> orderData){
+    private void parseOrderItem(Map<String,Object> orderData,Integer orderId){
         List<Map<String,Object>> orderItemList = (List<Map<String,Object>>)orderData.get("items");
         List<OrderItem> targetOrder = new LinkedList<>();
         for (Map<String,Object> orderItemObject: orderItemList) {
             OrderItem orderItem = new OrderItem();
             OrderItemKey orderItemKey = new OrderItemKey();
             orderItemKey.setBookId((Integer) orderItemObject.get("book_id"));
-            orderItemKey.setOrderId((Integer)orderItemObject.get("order_id"));
+            orderItemKey.setOrderId(orderId);
             orderItem.setOrderItemKey(orderItemKey);
-            orderItem.setAmount((Integer) orderItemObject.get("amount"));
+            Integer amount = (Integer) orderItemObject.get("amount");
+            orderItem.setAmount(amount);
             targetOrder.add(orderItem);
+            Book book = bookDao.findOne((Integer)orderItemObject.get("book_id"));
+            Integer remaining = book.getRemaining();
+            book.setRemaining(remaining - amount);
+            bookDao.putOne(book);
         }
         orderItemDao.putOrderItems(targetOrder);
     }
+
 
     private List<Map<String,Object>> getJson(List<Order> orderList){
         List<Map<String,Object>> orderData = new LinkedList<>();

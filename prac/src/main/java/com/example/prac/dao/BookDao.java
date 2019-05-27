@@ -1,7 +1,6 @@
 package com.example.prac.dao;
 
 import com.example.prac.entity.Book;
-import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
@@ -10,4 +9,5 @@ public interface BookDao {
 
     Book findOne(Integer id);
 
+    void putOne(Book book);
 }

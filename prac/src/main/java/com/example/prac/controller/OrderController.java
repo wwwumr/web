@@ -14,6 +14,11 @@ public class OrderController {
     @Autowired
     public OrderService orderService;
 
+    @GetMapping(value = "/orderNum")
+    public  Integer getOrderNum(){
+        return orderService.getOrderNum();
+    }
+
     @GetMapping(value = "/{userName}")
     public List<Map<String,Object>> say(@PathVariable String userName){
         return orderService.getOrders(userName);
