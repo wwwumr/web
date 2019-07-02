@@ -1,11 +1,14 @@
 package com.example.prac.entity;
 
-import javax.persistence.Column;
-import javax.persistence.Embeddable;
 import java.io.Serializable;
 
+import javax.persistence.Column;
+import javax.persistence.Embeddable;
+
 @Embeddable
-public class OrderItemKey implements Serializable {
+public class OrderItemKey implements Serializable{
+    private static final long serialVersionUID = 1L;
+
     @Column(name = "order_id")
     private Integer orderId;
 

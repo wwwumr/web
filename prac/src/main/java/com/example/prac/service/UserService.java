@@ -1,10 +1,13 @@
 package com.example.prac.service;
 
 import com.example.prac.entity.User;
-import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 public interface UserService {
 
     User getUser(String name);
     void addUser(User user);
+    List<User> getUsers();
+    void changeBan(Integer id);
 }

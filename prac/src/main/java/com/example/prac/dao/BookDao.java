@@ -6,8 +6,8 @@ import java.util.List;
 
 public interface BookDao {
     List<Book> findAll();
-
     Book findOne(Integer id);
-
     void putOne(Book book);
+    Integer getKey();
+    void removeBook(Integer id);
 }

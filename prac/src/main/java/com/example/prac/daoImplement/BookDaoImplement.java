@@ -26,4 +26,14 @@ public class BookDaoImplement implements BookDao {
     public void putOne(Book book){
         bookRepo.save(book);
     }
+
+    @Override
+    public Integer getKey() {
+        return bookRepo.getKey();
+    }
+
+    @Override
+    public void removeBook(Integer id) {
+        bookRepo.deleteBookByBookId(id);
+    }
 }

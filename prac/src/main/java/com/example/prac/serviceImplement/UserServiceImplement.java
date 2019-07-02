@@ -6,6 +6,8 @@ import com.example.prac.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class UserServiceImplement implements UserService {
     @Autowired
@@ -17,5 +19,15 @@ public class UserServiceImplement implements UserService {
 
     public void addUser(User user) {
         userDao.addUser(user);
+    }
+
+    @Override
+    public List<User> getUsers() {
+        return userDao.getUsers();
+    }
+
+    @Override
+    public void changeBan(Integer id) {
+        userDao.changeBan(id);
     }
 }

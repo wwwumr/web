@@ -17,6 +17,17 @@ public class OrderDaoImplement implements OrderDao {
     }
 
     @Override
+    public List<Order> getOrders() {
+        return orderRepo.findAll();
+    }
+
+    @Override
+    public List<Order> getPartOrders(String start, String end) {
+        System.out.println(start+" "+end);
+        return orderRepo.getPartOrders(start, end);
+    }
+
+    @Override
     public void putOrder(Order order) {
         orderRepo.save(order);
     }
@@ -24,5 +35,10 @@ public class OrderDaoImplement implements OrderDao {
     @Override
     public Integer getOrderNum() {
         return orderRepo.getOrderNum();
+    }
+
+    @Override
+    public List<Order> getPartOrders(String start, String end, String userName) {
+        return orderRepo.getPartOrders(start, end, userName);
     }
 }

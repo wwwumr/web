@@ -3,6 +3,8 @@ package com.example.prac.entity;
 
 import org.hibernate.annotations.Proxy;
 
+import java.io.Serializable;
+
 import javax.persistence.*;
 
 @Entity

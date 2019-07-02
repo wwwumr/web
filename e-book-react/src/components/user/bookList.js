@@ -4,8 +4,9 @@ import {Layout, Table, Input, Button, Icon, Collapse,List, } from 'antd';
 import Highlighter from 'react-highlight-words';  
 import axios from 'axios';
 import {Link} from 'react-router-dom';
-import Navigation from './header';
-import Tagger from './footer';
+import Tagger from '../layout/footer';
+import Navigation from '../layout/header';
+import config from '../config/config'
 
 
 const {Content} = Layout;
@@ -86,19 +87,20 @@ class BookList extends Component{
 
     }
 
+    /* get book data */
     componentWillMount(){
-      axios.get("http://localhost:8081/book/id").then((res)=>{
+        axios.get(config.url+"/book/id").then((res)=>{
           var dat = res.data;
           for(var i=0; i<dat.length;i++){
             dat[i].key=i;
           }
           this.setState({
-            book: dat
+              book: dat
           })
         })
     }
 
-    /* get book data */
+    /* process book key */
     componentDidMount(){
         var book = this.state.book;
         book.forEach((elem)=>{
@@ -258,7 +260,7 @@ class BookList extends Component{
      
     /* submit the order and order items */
     subMitOrder = ()=>{
-        axios.get("http://localhost:8081/order/orderNum").then((res)=>{
+        axios.get(config.url+"/order/orderNum").then((res)=>{
             var buyingList = this.state.bookOrder;
             if(buyingList.items.length===0){
               return ;
@@ -272,7 +274,7 @@ class BookList extends Component{
               buyingList.items[i].book_id = buyingList.items[i].bookId;
               delete buyingList.items[i].bookId;
             }    
-            axios.post("http://localhost:8081/order",buyingList
+            axios.post(config.url + "/order",buyingList
             )
             this.setState({
               bookOrder:{
@@ -377,7 +379,7 @@ class BookList extends Component{
                 <Content style={{
                 background: '#fff', padding: 24, margin: 0, minHeight: 450,
                 }}>
-                <Table columns={this.state.tag} dataSource={this.state.book} />
+                <Table  columns={this.state.tag} dataSource={this.state.book} />
                 <Collapse defaultActiveKey={['1']} >
                   <Panel header="购物车" key="1">
                   <List

@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class BookServiceImplement implements BookService {
@@ -19,5 +20,19 @@ public class BookServiceImplement implements BookService {
 
     public Book findBook(Integer bookId){
         return bookDao.findOne(bookId);
+    }
+
+    public void saveBook(Book data) {
+        bookDao.putOne(data);
+    }
+
+    public Integer getKey() {
+        return bookDao.getKey();
+    }
+
+    public void removeBook(List<Integer> ids) {
+        for (Integer id: ids) {
+            bookDao.removeBook(id);
+        }
     }
 }

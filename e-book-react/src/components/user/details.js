@@ -1,12 +1,16 @@
 import React, { Component } from 'react';
 import 'antd/dist/antd.css';
 import {Layout} from 'antd';
-import Navigation from './header';
-import Tagger from './footer';
 import axios from 'axios';
+import config from '../config/config'
+import Tagger from '../layout/footer';
+import Navigation from '../layout/header';
 
 const {Content} = Layout;
 
+/**
+ * Book Details
+ */
 class Details extends Component{
     constructor(props){
         super(props);
@@ -26,7 +30,7 @@ class Details extends Component{
     }
 
     componentWillMount(){
-        axios.get("http://localhost:8081/book/"+this.state.id).then((res)=>{
+        axios.get(config.url+"/book/"+this.state.id).then((res)=>{
           var dat = res.data;
           this.setState({
             book: dat

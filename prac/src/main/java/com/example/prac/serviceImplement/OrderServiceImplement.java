@@ -29,7 +29,23 @@ public class OrderServiceImplement implements OrderService {
     public List<Map<String,Object>> getOrders(String userName) {
         List<Order> orderList = orderDao.getOrders(userName);
         return getJson(orderList);
+    }
 
+    @Override
+    public List<Map<String, Object>> getOrders() {
+        List<Order> orderList = orderDao.getOrders();
+        return getJson(orderList);
+    }
+
+    public List<Map<String,Object>> getPartOrders(String start, String end) {
+        List<Order> orderList = orderDao.getPartOrders(start, end);
+        return getJson(orderList);
+    }
+
+    @Override
+    public List<Map<String, Object>> getPartOrders(String start, String end, String userName) {
+        List<Order> orderList = orderDao.getPartOrders(start, end, userName);
+        return getJson(orderList);
     }
 
     public void putOrder(Map<String,Object> orderData) {

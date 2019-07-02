@@ -1,12 +1,14 @@
 package com.example.prac.dao;
 
 import com.example.prac.entity.User;
-import org.springframework.stereotype.Repository;
+
+import java.util.List;
 
 
 public interface UserDao {
 
     User getUser(String name);
     void addUser(User user);
-
+    List<User> getUsers();
+    void changeBan(Integer id);
 }

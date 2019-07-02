@@ -1,18 +1,19 @@
 import React, { Component } from 'react';
 import 'antd/dist/antd.css';
-import {
-    Icon, Input, Button,Layout
-  } from 'antd';
+import { Icon, Input, Button,Layout } from 'antd';
 import '../asset/css/homePage.css'
-import Tagger from './footer';
-import Axios from 'axios';
+import axios from 'axios';
 import {Link } from 'react-router-dom';
 import { createHashHistory } from 'history';
+import Tagger from './layout/footer';
+import config from './config/config'
 
 const history = createHashHistory();
-
 const { Content} = Layout;
 
+/*
+ * The log in component 
+ */
 class LogInCompo extends React.Component {
     constructor(props){
         super(props);
@@ -35,7 +36,7 @@ class LogInCompo extends React.Component {
         })
 
 
-        Axios.get("http://localhost:8081/user/logIn",{
+        axios.get(config.url + "/user/logIn",{
             params:{
                 userName:userName
             }
@@ -44,7 +45,17 @@ class LogInCompo extends React.Component {
                 alert("用户名不存在");
             }else if(response.data.password === password){
                 this.setState({userName:userName});
-                history.push("/bookList/"+ this.state.userName);
+                if (response.data.ban !== null) {
+                    alert("对不起，您的账户已被封禁");
+                    return ; 
+                }
+                if (response.data.status === null) {
+                    alert("对不起，您的账户权限不明");
+                } else if (response.data.status === "ADMIN") {
+                    history.push("/mBookList/" + this.state.userName);
+                } else {
+                    history.push("/bookList/"+ this.state.userName);
+                }
             }else{
                 alert("密码输入错误");
             }
@@ -66,17 +77,10 @@ class LogInCompo extends React.Component {
     }
 }
   
-
-
+/* 
+ * Home Page of app : Provide the entry of logging in
+ */
 class HomePage extends Component{
-    constructor(props){
-        super(props);
-        this.state={
-            userName:"user"
-        }  
-    }
-
-
 
     render(){
         return (
@@ -88,14 +92,13 @@ class HomePage extends Component{
                 <div id="container">
                     <p id ="themeP">E-BOOK</p>
                     <div className="logContainer">
-                    <LogInCompo userName={this.state.userName}/>
+                    <LogInCompo userName={"user"}/>
                     </div>
                 </div>
                 </Content>
             </Layout>
             <Tagger />
             </Layout>
-            
         );
     }
 }
