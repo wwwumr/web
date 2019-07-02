@@ -1,10 +1,12 @@
 package com.example.prac.controller;
 
-import com.example.prac.dao.UserDao;
 
 import com.example.prac.entity.User;
+import com.example.prac.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 
 @CrossOrigin(origins = "*")
@@ -12,19 +14,25 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/user")
 public class UserController {
     @Autowired
-    private UserDao userDao;
+    private UserService userService;
 
     @GetMapping(value = "/logIn")
     public User getUser(@RequestParam String userName){
-        return userDao.getUser(userName);
+        return userService.getUser(userName);
     }
 
     @PostMapping(value = "/logIn")
     public void addUser(@RequestBody User user){
-        userDao.addUser(user);
+        userService.addUser(user);
     }
-    @DeleteMapping(value = "/logIn")
-    public void deleteUser(@RequestParam String userName){
-        userDao.deleteUser(userName);
+
+    @GetMapping(value = "/id")
+    public List<User> getUsers(){
+        return userService.getUsers();
+    }
+
+    @PostMapping(value = "/change")
+    public void changeBan(@RequestBody Integer[] ids) {
+        userService.changeBan(ids[0]);
     }
 }

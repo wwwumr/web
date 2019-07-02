@@ -1,34 +1,42 @@
 package com.example.prac.entity;
 
+import org.hibernate.annotations.Proxy;
+
 import javax.persistence.*;
 
 @Entity
+@Proxy(lazy = false)
 @Table(name = "user")
 public class User {
 
     @Id
     @GeneratedValue
-    public Integer id;
+    @Column(name = "user_id")
+    private Integer userId;
 
     @Column(name = "name")
-    public String name;
+    private String name;
 
     @Column(name = "password")
-    public String password;
+    private String password;
+
+    @Column(name = "status")
+    private String status;
+
+    @Column(name = "ban")
+    private String ban;
 
     @Column(name = "email")
-    public String email;
+    private String email;
 
-    public User(){
+    public User(){}
 
+    public Integer getUserId() {
+        return userId;
     }
 
-    public void setId(Integer id) {
-        this.id = id;
-    }
-
-    public Integer getId() {
-        return id;
+    public void setUserId(Integer userId) {
+        this.userId = userId;
     }
 
     public String getName() {
@@ -47,6 +55,22 @@ public class User {
         this.password = password;
     }
 
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public String getBan() {
+        return ban;
+    }
+
+    public void setBan(String ban) {
+        this.ban = ban;
+    }
+
     public String getEmail() {
         return email;
     }
@@ -55,8 +79,7 @@ public class User {
         this.email = email;
     }
 
-    @Override
-    public String toString() {
-        return super.toString();
-    }
+    /*@OneToMany(fetch = FetchType.LAZY,cascade = CascadeType.ALL)
+    @JoinColumn(name = "name")
+    private List<Order> orderList;*/
 }
